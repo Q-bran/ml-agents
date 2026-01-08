@@ -11,7 +11,6 @@ public class OffensiveAgent: AgentSoccer
     public Transform opponentGoal; 
     public Transform opponentAgent;
     public float fieldLength = 40f;
-
     private int stepsSinceLastTouch = 0;
     private Rigidbody agentRb;
     private Rigidbody opponentRb;
