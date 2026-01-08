@@ -20,65 +20,23 @@ public class DefensiveAgent : AgentSoccer
 
     public override void Initialize()
     {
-        SoccerEnvController envController = GetComponentInParent<SoccerEnvController>();
-        if (envController != null)
-        {
-            m_Existential = 1f / envController.MaxEnvironmentSteps;
-        }
-        else
-        {
-            m_Existential = 1f / MaxStep;
-        }
-
-        m_BehaviorParameters = gameObject.GetComponent<BehaviorParameters>();
-        if (m_BehaviorParameters.TeamId == (int)Team.Blue)
-        {
-            team = Team.Blue;
-            initialPos = new Vector3(transform.position.x - 5f, .5f, transform.position.z);
-            rotSign = 1f;
-        }
-        else
-        {
-            team = Team.Purple;
-            initialPos = new Vector3(transform.position.x + 5f, .5f, transform.position.z);
-            rotSign = -1f;
-        }
-        if (position == Position.Goalie)
-        {
-            m_LateralSpeed = 1.0f;
-            m_ForwardSpeed = 1.0f;
-        }
-        else if (position == Position.Striker)
-        {
-            m_LateralSpeed = 0.3f;
-            m_ForwardSpeed = 1.3f;
-        }
-        else
-        {
-            m_LateralSpeed = 0.3f;
-            m_ForwardSpeed = 1.0f;
-        }
-        m_SoccerSettings = FindObjectOfType<SoccerSettings>();
-        agentRb = GetComponent<Rigidbody>();
-        agentRb.maxAngularVelocity = 500;
-
-        m_ResetParams = Academy.Instance.EnvironmentParameters;
-
-    
+        base.Initialize();
+        if (ball != null && ballRb) ballRb = ball.GetComponent<Rigidbody>();
     }
 
     public override void OnEpisodeBegin()
     {
-        m_BallTouch = m_ResetParams.GetWithDefault("ball_touch", 0);
+        base.OnEpisodeBegin();
     }
     
     public override void CollectObservations(VectorSensor sensor)
     {
+        if (ball == null || teammate == null) return;
     
-        float distanceToBall = Vector3.Distance(transform.position, ball.position);
         float fieldHalf = fieldLength / 2f;
 
         // distance to ball
+        float distanceToBall = Vector3.Distance(transform.position, ball.position);
         sensor.AddObservation(distanceToBall); 
 
         // opponent data 
@@ -118,9 +76,7 @@ public class DefensiveAgent : AgentSoccer
         // agent's angular velocity 
         sensor.AddObservation(agentRb.angularVelocity);
         
-        
     }
-
     public override void OnActionReceived(ActionBuffers actions)
     {
         if (position == Position.Goalie)
@@ -135,12 +91,13 @@ public class DefensiveAgent : AgentSoccer
         }
         MoveAgent(actionBuffers.DiscreteActions);
         
-        // example movement
-        float forward = actions.ContinuousActions[1];
-        float rotate = actions.ContinuousActions[2];
-        
-        Vector3 move = transform.forward * forward * MOVEMENT_MULTIPLIER;
-        agentRb.AddForce(move, ForceMode.VelocityChange);
-        transform.Rotate(transform.up, rotate * 5f); 
+    }
+    private void OnCollisionEnter(Collision collision){
+        base.OnCollisionEnter(collision); // call parent collision for kick
+
+        if(collision.gameObject.CompareTag("ball"))
+        {
+            stepsSinceLastTouch = 0;
+        }
     }
 }

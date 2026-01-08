@@ -26,7 +26,7 @@ public class OffensiveAgent: AgentSoccer
 
     public override void OnEpisodeBegin()
     {
-        m_BallTouch = m_ResetParams.GetWithDefault("ball_touch", 0);
+        base.OnEpisodeBegin();
         stepsSinceLastTouch = 0;
     }
 
@@ -92,17 +92,10 @@ public class OffensiveAgent: AgentSoccer
             // Existential penalty for Strikers
             AddReward(-m_Existential);
         }
+
         MoveAgent(actionBuffers.DiscreteActions);
 
-        //example movement
-        float forward = actions.ContinuousActions[1];
-        float rotate = actions.ContinuousActions[2];
-        
-        Vector3 move = transform.forward * forward * MOVEMENT_MULTIPLIER;
-        agentRb.AddForce(move, ForceMode.VelocityChange);
-        transform.Rotate(transform.up, rotate * 5f); 
-        
-        lastAction = actions.ContinuousActions[0];} 
+    }
 
         private void OnCollisionEnter(Collision collision){
         base.OnCollisionEnter(collision); // call parent collision for kick
@@ -114,7 +107,5 @@ public class OffensiveAgent: AgentSoccer
     }
         
     
-
-
 
 }
