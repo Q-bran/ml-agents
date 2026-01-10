@@ -1,0 +1,31 @@
+import numpy as np
+import pandas as pd
+import csv
+from sklearn.model_selection import train_test_split
+
+dataset_time = pd.read_csv['C:\Users\bianc\OneDrive\Documents\code\UniBac2\ml-agents\results\soccer\time_per_training']
+
+x2 = dataset_time.iloc[:,0,8].values
+y2= dataset_time.iloc[[0,10000],:].values     #how many rows ?
+
+#pre processing
+#!!!
+
+x_main2,x_test2,y_main2,y_test2 = train_test_split(x2,y2,test_size=200, stratify=y2) #200 being the size of test set 
+x_train2,x_val2,y_train2,y_val2 = train_test_split(x_main2,y_main2,test_size=200, stratify=y_main2) #200 being the size of the validation set, the rest being the trainign set.
+
+with open('shuffle_time_soccer.csv', 'w',newline='') as csvfile:
+    fieldnames = ['strategy', 'gamePlay', 'batch_size','buffer_size','max_steps','hidden_units','num_layers','total_duration' ]
+    writer = csv.writer(csvfile)
+
+    writer.writerows("\nx_main2:\n")
+    writer.writerows(x_train2.head())
+    writer.writerows(x_train2.shape)
+
+    writer.writerows("\nx_train2:\n")
+    writer.writerows(x_train2.head())
+    writer.writerows(x_train2.shape)
+
+    writer.writerows("\nx_val2:\n")
+    writer.writerows(x_train2.head())
+    writer.writerows(x_train2.shape)
