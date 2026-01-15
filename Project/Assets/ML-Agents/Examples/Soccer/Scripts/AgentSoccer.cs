@@ -41,7 +41,7 @@ public class AgentSoccer : Agent
     public Position position;
 
     const float k_Power = 2000f;
-    float m_Existential;
+    public float m_Existential;
     float m_LateralSpeed;
     float m_ForwardSpeed;
 
@@ -200,7 +200,7 @@ public class AgentSoccer : Agent
     /// <summary>
     /// Used to provide a "kick" to the ball.
     /// </summary>
-    void OnCollisionEnter(Collision c)
+    public void OnCollisionEnter(Collision c)
     {
         var force = k_Power * m_KickPower;
         if (position == Position.Goalie)
@@ -220,4 +220,7 @@ public class AgentSoccer : Agent
         m_BallTouch = m_ResetParams.GetWithDefault("ball_touch", 0);
     }
 
+
+
+    ////    
 }

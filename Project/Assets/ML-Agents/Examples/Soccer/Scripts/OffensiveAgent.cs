@@ -11,9 +11,15 @@ public class OffensiveAgent: AgentSoccer
     public Transform opponentGoal; 
     public Transform opponentAgent;
     public float fieldLength = 40f;
-    private int stepsSinceLastTouch = 0;
-    private Rigidbody agentRb;
+    private Rigidbody o_agentRb;
+    float m_KickPower;
+
+    public float m_Existential;
+
+    const float k_Power = 2000f;
     private Rigidbody opponentRb;
+
+    private int stepsSinceLastTouch=0;
 
     private const float MOVEMENT_MULTIPLIER = 10f; // scales the resultant force for singnificant output
 
@@ -92,14 +98,24 @@ public class OffensiveAgent: AgentSoccer
             AddReward(-m_Existential);
         }
 
-        MoveAgent(actionBuffers.DiscreteActions);
+        MoveAgent(actions.DiscreteActions);
 
     }
 
-        private void OnCollisionEnter(Collision collision){
-        base.OnCollisionEnter(collision); // call parent collision for kick
+        private void OnCollisionEnter(Collision c){
+            var force = k_Power * m_KickPower;
+            if (position == Position.Goalie)
+                {
+                    force = k_Power;
+                }
+            if (c.gameObject.CompareTag("ball"))
+                {
+                    //AddReward(.2f * m_BallTouch);
+                    var dir = (c.contacts[0].point - transform.position).normalized;
+                    c.gameObject.GetComponent<Rigidbody>().AddForce(dir * force);
+                }
 
-        if(collision.gameObject.CompareTag("ball"))
+        if(c.gameObject.CompareTag("ball"))
         {
             stepsSinceLastTouch = 0;
         }

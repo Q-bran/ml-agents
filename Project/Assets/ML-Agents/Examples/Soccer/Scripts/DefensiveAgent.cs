@@ -13,7 +13,15 @@ public class DefensiveAgent : AgentSoccer
     public float fieldLength = 40f; 
     public LayerMask opponentLayer;
 
-    private Rigidbody agentRb;
+    float m_KickPower;
+
+    public float m_Existential;
+
+    const float k_Power = 2000f;
+
+    public Transform teammate;
+    private int stepsSinceLastTouch = 0;
+    private Rigidbody d_agentRb;
     private Rigidbody opponentRb; 
     
     private const float MOVEMENT_MULTIPLIER = 10f; // scales the resultant force for singnificant output
@@ -57,6 +65,7 @@ public class DefensiveAgent : AgentSoccer
             sensor.AddObservation(0f); 
         }
 
+        sensor.AddObservation(stepsSinceLastTouch); 
         //goal angle (own goal)
         Vector3 myGoalDirection = (myGoal.position - transform.position).normalized;
         sensor.AddObservation(transform.InverseTransformDirection(myGoalDirection));
@@ -89,13 +98,23 @@ public class DefensiveAgent : AgentSoccer
             // Existential penalty for Strikers
             AddReward(-m_Existential);
         }
-        MoveAgent(actionBuffers.DiscreteActions);
+        MoveAgent(actions.DiscreteActions);
         
     }
-    private void OnCollisionEnter(Collision collision){
-        base.OnCollisionEnter(collision); // call parent collision for kick
+    private void OnCollisionEnter(Collision c){
+        var force = k_Power * m_KickPower;
+            if (position == Position.Goalie)
+                {
+                    force = k_Power;
+                }
+            if (c.gameObject.CompareTag("ball"))
+                {
+                    //AddReward(.2f * m_BallTouch);
+                    var dir = (c.contacts[0].point - transform.position).normalized;
+                    c.gameObject.GetComponent<Rigidbody>().AddForce(dir * force);
+                }
 
-        if(collision.gameObject.CompareTag("ball"))
+        if(c.gameObject.CompareTag("ball"))
         {
             stepsSinceLastTouch = 0;
         }
